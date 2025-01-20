@@ -1,0 +1,19 @@
+name: Build and Artifact
+
+runs-on: self-hosted
+
+steps:
+  # Checkout the repository
+  - name: Checkout Code
+    uses: actions/checkout@v3
+
+  # Build the project with Maven
+  - name: Build with Maven
+    run: mvn clean install
+
+  # Store artifacts with versioning
+  - name: Upload Artifacts with Versioning
+    uses: actions/upload-artifact@v3
+    with:
+      name: my-app-artifact-${{ github.sha }}
+      path: target/*.jar
