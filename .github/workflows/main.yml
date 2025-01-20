@@ -7,20 +7,25 @@ on:
   pull_request:
     branches:
       - master
-  workflow_dispatch:
+  workflow_dispatch:  # Allow for manual trigger via GitHub UI
 
 jobs:
-  setup-java-maven:
-    uses: ./.github/workflows/setup-java-maven.yml
+  # Call the Java and Maven setup workflow
+  java-maven-setup:
+    uses: ./.github/workflows/setup-java-maven-setup.yml  # Reference to the consolidated Java and Maven setup workflow
 
-  build-and-artifact:
-    uses: ./.github/workflows/build-and-artifact.yml
-    needs: setup-java-maven
+  # # Call the build and artifact workflow
+  # build-and-artifact:
+  #   uses: ./.github/workflows/build-and-artifact.yml  # Reference to the build workflow
 
-  springboot-run-stop:
-    uses: ./.github/workflows/springboot-run-stop.yml
-    needs: build-and-artifact
+  # # Call the Spring Boot run and stop workflow
+  # springboot-run-stop:
+  #   uses: ./.github/workflows/springboot-run-stop.yml  # Reference to the Spring Boot workflow
 
-  sonarcloud-analysis:
-    uses: ./.github/workflows/sonarcloud-analysis.yml
-    needs: build-and-artifact
+  # # Call the SonarCloud analysis workflow
+  # sonarcloud-analysis:
+  #   uses: ./.github/workflows/sonarcloud-analysis.yml  # Reference to the SonarCloud analysis workflow
+  #   with:
+  #     sonar-token: ${{ secrets.SONAR_TOKEN }}
+  #     sonar-org: your-organization  # Replace with your actual SonarCloud organization
+  #     sonar-host-url: https://sonarcloud.io

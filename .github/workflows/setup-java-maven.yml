@@ -1,41 +1,35 @@
-name: Setup Java and Maven
+name: Java and Maven Setup
 
 on:
-  push:
-    branches:
-      - '**'  # Trigger for all branches
-  pull_request:
-    branches:
-      - master  # Trigger for pull requests targeting the master branch
-  workflow_dispatch:  # Allow for manual trigger via GitHub UI
+  workflow_call:  # This workflow can be called from other workflows
 
-runs-on: self-hosted
+jobs:
+  setup-java-maven:
+    runs-on: ubuntu-latest
 
-steps:
-  # Checkout the repository
-  - name: Checkout Code
-    uses: actions/checkout@v3
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-  # Install Maven
-  - name: Install Maven
-    run: |
-      sudo apt update
-      sudo apt install maven -y
-      mvn -v
+      # Set up Java
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-  # Set up Java
-  - name: Set up Java
-    uses: actions/setup-java@v3
-    with:
-      java-version: '17'
-      distribution: 'temurin'
-      cache: maven
+      # Install Maven
+      - name: Install Maven
+        run: |
+          sudo apt update
+          sudo apt install maven -y
+          mvn -v
 
-  # Cache Maven dependencies
-  - name: Cache Maven dependencies
-    uses: actions/cache@v3
-    with:
-      path: ~/.m2
-      key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-      restore-keys: |
-        ${{ runner.os }}-maven-
+      # Cache Maven dependencies
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
