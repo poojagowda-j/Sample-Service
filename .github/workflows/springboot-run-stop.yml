@@ -33,11 +33,6 @@ jobs:
             exit 1
           fi
 
-      # Display the IP address and port number
-      - name: Display IP Address and Port
-        run: |
-          echo "The app is accessible at: http://$IP_ADDRESS:$PORT"
-
       # Wait for 3 minutes (180 seconds)
       - name: Wait for 3 minutes
         run: |
