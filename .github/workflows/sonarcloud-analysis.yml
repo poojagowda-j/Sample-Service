@@ -1,36 +1,32 @@
 name: SonarCloud Analysis
 
 on:
-  push:
-    branches:
-      - '**'  # Trigger for all branches
-  pull_request:
-    branches:
-      - master  # Trigger for pull requests targeting the master branch
-  workflow_dispatch:  # Allow for manual trigger via GitHub UI
+  workflow_call:  # This workflow can be called from other workflows
 
-runs-on: self-hosted
+jobs:
+  sonarcloud-analysis:
+    runs-on: ubuntu-latest
 
-steps:
-  # Checkout the repository
-  - name: Checkout Code
-    uses: actions/checkout@v3
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-  # Set up Java
-  - name: Set up Java
-    uses: actions/setup-java@v3
-    with:
-      java-version: '17'
-      distribution: 'temurin'
+      # Set up Java
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-  # SonarCloud Analysis
-  - name: SonarCloud Analysis
-    env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SONAR_ORG: your-organization # Replace with your actual SonarCloud organization
-      SONAR_HOST_URL: https://sonarcloud.io
-    run: |
-      mvn clean verify sonar:sonar \
-        -Dsonar.organization=${{ secrets.SONAR_ORG }} \
-        -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-        -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      # SonarCloud Analysis (separate job)
+      - name: SonarCloud Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORG: your-organization # Replace with your actual SonarCloud organization
+          SONAR_HOST_URL: https://sonarcloud.io
+        run: |
+          mvn clean verify sonar:sonar \
+            -Dsonar.organization=${{ secrets.SONAR_ORG }} \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
