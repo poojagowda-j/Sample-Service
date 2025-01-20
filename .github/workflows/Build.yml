@@ -46,6 +46,13 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
+      # Store artifacts with versioning (Before running the .jar)
+      - name: Upload Artifacts with Versioning
+        uses: actions/upload-artifact@v3
+        with:
+          name: my-app-artifact-${{ github.sha }}  # Artifact version based on commit SHA
+          path: target/*.jar  # Path to the built artifact (e.g., JAR file or other build outputs)
+
       # Run the Spring Boot application in the background
       - name: Run Spring Boot App
         run: mvn spring-boot:run &
@@ -54,7 +61,7 @@ jobs:
       - name: Wait for Spring Boot App to Start
         run: |
           echo "Waiting for the app to start..."
-          sleep 15
+          sleep 15  # Allow time for the Spring Boot app to fully initialize
           echo "App should now be running."
 
       # Validate that the application is running
