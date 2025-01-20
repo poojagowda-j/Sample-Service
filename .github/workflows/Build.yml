@@ -50,7 +50,7 @@ jobs:
       - name: Upload Artifacts with Versioning
         uses: actions/upload-artifact@v3
         with:
-          name: my-app-artifact-${{ github.sha }}  # Artifact version based on commit SHA
+          name: ${{ github.repository }}-${{ github.ref_name }}-${{ github.sha }}  # Artifact name based on repo and branch
           path: target/*.jar  # Path to the built artifact (e.g., JAR file or other build outputs)
 
       # Run the Spring Boot application in the background
@@ -97,6 +97,14 @@ jobs:
         run: |
           echo "Stopping the app gracefully..."
           mvn spring-boot:stop
+
+      # Display a link to download the build artifact
+      - name: Display Artifact Download Link
+        run: |
+          ARTIFACT_NAME="${{ github.repository }}-${{ github.ref_name }}-${{ github.sha }}.jar"  # Artifact name based on repo and branch
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/artifacts/${{ github.run_id }}/download/${ARTIFACT_NAME}"
+          echo "You can download the artifact from the following link:"
+          echo $ARTIFACT_URL
 
   sonarcloud-analysis:
     runs-on: ubuntu-latest
