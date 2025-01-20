@@ -133,3 +133,10 @@ jobs:
             -Dsonar.organization=${{ secrets.SONAR_ORG }} \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+      # Upload the build artifact (after the SonarCloud analysis)
+      - name: Upload Artifacts with Versioning
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.repository }}-${{ github.ref_name }}-${{ github.sha }}  # Artifact name based on repo and branch (replacing / with -)
+          path: target/*.jar  # Path to the built artifact (e.g., JAR file or other build outputs)
