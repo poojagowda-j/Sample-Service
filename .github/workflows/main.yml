@@ -10,56 +10,60 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Reuse setup-java.yml to set up Java environment
   setup:
-    uses: ./.github/workflows/templates/setup-java.yml  # Reuse setup-java workflow
-    secrets:
-      token: ${{ secrets.ACCESS_TOKEN }}
+    runs-on: self-hosted  # Use self-hosted runner
+    uses: ./.github/workflows/setup-java.yml  # Reusable workflow at the top level
 
+  # Reuse build.yml to build the project with Maven and upload artifacts
   build:
-    runs-on: ubuntu-latest
-    needs: setup
+    runs-on: self-hosted  # Use self-hosted runner
+    needs: setup  # Ensure setup job runs before build job
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # Reuse setup-java.yml to set up Java in the build job
       - name: Set up Java
-        uses: ./.github/actions/setup-java-action  # Reuse custom action
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+        uses: ./.github/workflows/setup-java.yml  # Reuse the setup-java.yml
 
+      # Cache Maven dependencies
       - name: Cache Maven dependencies
-        uses: ./.github/actions/cache-maven-action  # Reuse caching action
+        uses: actions/cache@v3
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
+      # Build the project with Maven
       - name: Build with Maven
         run: mvn clean install
 
-      - name: Upload Artifacts
+      # Upload Artifacts with Versioning (Before running the .jar)
+      - name: Upload Artifacts with Versioning
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifact-${{ github.sha }}
-          path: target/*.jar
-          
+          name: ${{ github.repository }}-${{ github.ref_name }}-${{ github.sha }}  # Artifact name based on repo and branch
+          path: target/*.jar  # Path to the built artifact (e.g., JAR file or other build outputs)
+
+  # Reuse sonarcloud-analysis.yml to run SonarCloud analysis
   sonarcloud-analysis:
-    runs-on: ubuntu-latest
-    needs: build
+    runs-on: self-hosted  # Use self-hosted runner
+    needs: build  # Ensure build job runs before sonarcloud-analysis job
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # Reuse setup-java.yml to set up Java for SonarCloud analysis
       - name: Set up Java
-        uses: ./.github/actions/setup-java-action  # Reuse setup-java action
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+        uses: ./.github/workflows/setup-java.yml  # Reuse the setup-java.yml
 
+      # SonarCloud Analysis
       - name: SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_ORG: your-organization
+          SONAR_ORG: your-organization  # Replace with your actual SonarCloud organization
           SONAR_HOST_URL: https://sonarcloud.io
         run: |
           mvn clean verify sonar:sonar \
