@@ -1,6 +1,0 @@
-name: Display IP Address and Port
-run: |
-  echo "Fetching the runner's IP address..."
-  IP_ADDRESS=$(curl -s ifconfig.me) # This fetches the public IP of the runner
-  PORT=8080
-  echo "The app is accessible at: http://$IP_ADDRESS:$PORT"

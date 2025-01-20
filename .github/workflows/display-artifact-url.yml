@@ -1,6 +1,0 @@
-name: Display Artifact Download Link
-run: |
-  ARTIFACT_NAME="${{ github.repository }}-${{ github.ref_name }}-${{ github.sha }}.jar"  # Artifact name based on repo and branch
-  ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/artifacts/${{ github.run_id }}/download/${ARTIFACT_NAME}"
-  echo "You can download the artifact from the following link:"
-  echo $ARTIFACT_URL
