@@ -12,7 +12,7 @@ on:
 jobs:
   # Call the Java and Maven setup workflow
   java-maven-setup:
-    uses: ./.github/workflows/setup-java-maven-setup.yml  # Reference to the consolidated Java and Maven setup workflow
+    uses: ./.github/workflows/setup-java-maven.yml  # Reference to the consolidated Java and Maven setup workflow
 
   # # Call the build and artifact workflow
   # build-and-artifact:
