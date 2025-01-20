@@ -79,6 +79,12 @@ jobs:
           PORT=8080
           echo "The app is accessible at: http://$IP_ADDRESS:$PORT"
 
+      # Wait for 3 minutes (180 seconds)
+      - name: Wait for 3 minutes
+        run: |
+          echo "App has been running for 3 minutes. Waiting..."
+          sleep 180 # Wait for 3 minutes
+
       # Stop the Spring Boot app gracefully
       - name: Gracefully Stop Spring Boot App
         run: |
