@@ -50,7 +50,7 @@ jobs:
       - name: Upload Artifacts with Versioning
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.repository }}-${{ github.ref_name }}-${{ github.sha }}  # Artifact name based on repo and branch
+          name: ${{ github.repository }}-${{ github.ref_name }}-${{ github.sha }}  # Artifact name based on repo and branch (replacing / with -)
           path: target/*.jar  # Path to the built artifact (e.g., JAR file or other build outputs)
 
       # Run the Spring Boot application in the background
@@ -102,7 +102,7 @@ jobs:
       - name: Display Artifact Download Link
         run: |
           ARTIFACT_NAME="${{ github.repository }}-${{ github.ref_name }}-${{ github.sha }}.jar"  # Artifact name based on repo and branch
-          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ github.run_id }}"
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/artifacts/${{ github.run_id }}/download/${ARTIFACT_NAME}"
           echo "You can download the artifact from the following link:"
           echo $ARTIFACT_URL
 
