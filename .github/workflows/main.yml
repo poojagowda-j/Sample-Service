@@ -18,9 +18,9 @@ jobs:
   build-and-artifact:
     uses: ./.github/workflows/build-and-artifact.yml  # Reference to the build workflow
 
-  # # Call the Spring Boot run and stop workflow
-  # springboot-run-stop:
-  #   uses: ./.github/workflows/springboot-run-stop.yml  # Reference to the Spring Boot workflow
+  # Call the Spring Boot run and stop workflow
+  springboot-run-stop:
+    uses: ./.github/workflows/springboot-run-stop.yml  # Reference to the Spring Boot workflow
 
   # # Call the SonarCloud analysis workflow
   # sonarcloud-analysis:
