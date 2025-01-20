@@ -1,0 +1,6 @@
+name: Upload Artifacts with Versioning
+uses: actions/upload-artifact@v3
+with:
+  name: ${{ github.repository }}-${{ github.ref_name }}-${{ github.sha }}  # Artifact name based on repo and branch (replacing / with -)
+  path: target/*.jar  # Path to the built artifact (e.g., JAR file or other build outputs)
+

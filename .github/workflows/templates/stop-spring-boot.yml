@@ -1,0 +1,4 @@
+name: Gracefully Stop Spring Boot App
+run: |
+  echo "Stopping the app gracefully..."
+  mvn spring-boot:stop

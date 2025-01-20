@@ -1,0 +1,4 @@
+name: Wait for 3 minutes
+run: |
+  echo "App has been running for 3 minutes. Waiting..."
+  sleep 180 # Wait for 3 minutes

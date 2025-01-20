@@ -1,3 +1,4 @@
+# .github/workflows/main.yml
 name: Build, Deploy, and Analyze
 
 on:
@@ -11,103 +12,68 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
+      # Checkout the repository (no template)
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Install Maven
-      - name: Install Maven
-        run: |
-          sudo apt update
-          sudo apt install maven -y
-          mvn -v
-      # Set up Java
+      # Set up Java (template)
       - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
+        uses: ./.github/workflows/templates/setup-java.yml
 
-      # Cache Maven dependencies
+      # Cache Maven dependencies (template)
       - name: Cache Maven dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      # Build the project with Maven
+        uses: ./.github/workflows/templates/cache-maven.yml
+
+      # Build the project with Maven (template)
       - name: Build with Maven
-        run: mvn clean install
+        uses: ./.github/workflows/templates/maven-build.yml
 
-      # Store artifacts with versioning (Before running the .jar)
+      # Upload Artifacts with Versioning (template)
       - name: Upload Artifacts with Versioning
-        uses: actions/upload-artifact@v3
-        with:
-          name: my-app-artifact-${{ github.sha }}  # Artifact version based on commit SHA
-          path: target/*.jar  # Path to the built artifact (e.g., JAR file or other build outputs)
+        uses: ./.github/workflows/templates/upload-artifacts.yml
 
-      # Run the Spring Boot application in the background
+      # Run the Spring Boot application (template)
       - name: Run Spring Boot App
-        run: mvn spring-boot:run &
+        uses: ./.github/workflows/templates/run-spring-boot.yml
 
-      # Wait for the Spring Boot app to fully start
+      # Wait for the Spring Boot app to fully start (template)
       - name: Wait for Spring Boot App to Start
-        run: |
-          echo "Waiting for the app to start..."
-          sleep 15  # Allow time for the Spring Boot app to fully initialize
-          echo "App should now be running."
-      # Validate that the application is running
+        uses: ./.github/workflows/templates/wait-for-app.yml
+
+      # Validate that the application is running (template)
       - name: Validate App is Running
-        run: |
-          echo "Checking if the app is running..."
-          IP_ADDRESS=$(curl -s ifconfig.me) # Fetch public IP address
-          PORT=8080
-          RESPONSE=$(curl --write-out "%{http_code}" --silent --output /dev/null http://$IP_ADDRESS:$PORT)
-          if [ "$RESPONSE" -eq 200 ]; then
-            echo "The app is running successfully at http://$IP_ADDRESS:$PORT!"
-          else
-            echo "The app failed to start. HTTP response code: $RESPONSE"
-            exit 1
-          fi
-      # Display the IP address and port number for accessing the app
+        uses: ./.github/workflows/templates/validate-app.yml
+
+      # Display IP Address and Port (template)
       - name: Display IP Address and Port
-        run: |
-          echo "Fetching the runner's IP address..."
-          IP_ADDRESS=$(curl -s ifconfig.me) # This fetches the public IP of the runner
-          PORT=8080
-          echo "The app is accessible at: http://$IP_ADDRESS:$PORT"
-      # Wait for 3 minutes (180 seconds)
+        uses: ./.github/workflows/templates/display-ip.yml
+
+      # Wait for 3 minutes (template)
       - name: Wait for 3 minutes
-        run: |
-          echo "App has been running for 3 minutes. Waiting..."
-          sleep 180 # Wait for 3 minutes
-      # Stop the Spring Boot app gracefully
+        uses: ./.github/workflows/templates/wait-3-minutes.yml
+
+      # Gracefully Stop Spring Boot App (template)
       - name: Gracefully Stop Spring Boot App
-        run: |
-          echo "Stopping the app gracefully..."
-          mvn spring-boot:stop
+        uses: ./.github/workflows/templates/stop-spring-boot.yml
+
+      # Display the artifact download link (template)
+      - name: Display Artifact Download Link
+        uses: ./.github/workflows/templates/display-artifact-url.yml
+
   sonarcloud-analysis:
     runs-on: ubuntu-latest
     needs: build  # Ensure the build job runs before sonarcloud-analysis job
 
     steps:
-      # Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Set up Java
       - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+        uses: ./.github/workflows/templates/setup-java.yml
 
-      # SonarCloud Analysis (separate job)
       - name: SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
