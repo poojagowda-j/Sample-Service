@@ -1,4 +1,3 @@
-# .github/workflows/main.yml
 name: Build, Deploy, and Analyze
 
 on:
@@ -11,73 +10,56 @@ on:
   workflow_dispatch:
 
 jobs:
+  setup:
+    uses: ./.github/workflows/templates/setup-java.yml  # Reuse setup-java workflow
+    secrets:
+      token: ${{ secrets.ACCESS_TOKEN }}
+
   build:
     runs-on: ubuntu-latest
-
+    needs: setup
     steps:
-      # Checkout the repository (no template)
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Set up Java (template)
       - name: Set up Java
-        uses: ./.github/workflows/templates/setup-java.yml
+        uses: ./.github/actions/setup-java-action  # Reuse custom action
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-      # Cache Maven dependencies (template)
       - name: Cache Maven dependencies
-        uses: ./.github/workflows/templates/cache-maven.yml
+        uses: ./.github/actions/cache-maven-action  # Reuse caching action
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
-      # Build the project with Maven (template)
       - name: Build with Maven
-        uses: ./.github/workflows/templates/maven-build.yml
+        run: mvn clean install
 
-      # Upload Artifacts with Versioning (template)
-      - name: Upload Artifacts with Versioning
-        uses: ./.github/workflows/templates/upload-artifacts.yml
-
-      # Run the Spring Boot application (template)
-      - name: Run Spring Boot App
-        uses: ./.github/workflows/templates/run-spring-boot.yml
-
-      # Wait for the Spring Boot app to fully start (template)
-      - name: Wait for Spring Boot App to Start
-        uses: ./.github/workflows/templates/wait-for-app.yml
-
-      # Validate that the application is running (template)
-      - name: Validate App is Running
-        uses: ./.github/workflows/templates/validate-app.yml
-
-      # Display IP Address and Port (template)
-      - name: Display IP Address and Port
-        uses: ./.github/workflows/templates/display-ip.yml
-
-      # Wait for 3 minutes (template)
-      - name: Wait for 3 minutes
-        uses: ./.github/workflows/templates/wait-3-minutes.yml
-
-      # Gracefully Stop Spring Boot App (template)
-      - name: Gracefully Stop Spring Boot App
-        uses: ./.github/workflows/templates/stop-spring-boot.yml
-
-      # Display the artifact download link (template)
-      - name: Display Artifact Download Link
-        uses: ./.github/workflows/templates/display-artifact-url.yml
-
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact-${{ github.sha }}
+          path: target/*.jar
+          
   sonarcloud-analysis:
     runs-on: ubuntu-latest
-    needs: build  # Ensure the build job runs before sonarcloud-analysis job
-
+    needs: build
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Set up Java
-        uses: ./.github/workflows/templates/setup-java.yml
+        uses: ./.github/actions/setup-java-action  # Reuse setup-java action
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_ORG: your-organization # Replace with your actual SonarCloud organization
+          SONAR_ORG: your-organization
           SONAR_HOST_URL: https://sonarcloud.io
         run: |
           mvn clean verify sonar:sonar \
