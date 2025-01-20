@@ -17,15 +17,19 @@ jobs:
   # Call the build and artifact workflow
   build-and-artifact:
     uses: ./.github/workflows/build-and-artifact.yml  # Reference to the build workflow
+    needs: java-maven-setup  # Ensure Java and Maven setup is completed first
 
   # Call the Spring Boot run and stop workflow
   springboot-run-stop:
     uses: ./.github/workflows/springboot-run-stop.yml  # Reference to the Spring Boot workflow
+    needs: build-and-artifact  # Ensure the build is completed before running Spring Boot
 
   # Call the SonarCloud analysis workflow
   sonarcloud-analysis:
     uses: ./.github/workflows/sonarcloud-analysis.yml  # Reference to the SonarCloud analysis workflow
-    with:
-      sonar-token: ${{ secrets.SONAR_TOKEN }}
-      sonar-org: your-organization  # Replace with your actual SonarCloud organization
-      sonar-host-url: https://sonarcloud.io
+    needs: build-and-artifact  # Ensure the build job is completed before analysis
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_ORG: ${{ secrets.SONAR_ORG }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+

@@ -1,11 +1,18 @@
 name: SonarCloud Analysis
 
 on:
-  workflow_call:  # This workflow can be called from other workflows
+  workflow_call:
+    secrets:
+      SONAR_TOKEN:  # SonarCloud authentication token
+        required: true
+      SONAR_ORG:  # SonarCloud organization
+        required: true
+      SONAR_HOST_URL:  # SonarCloud host URL
+        required: true
 
 jobs:
   sonarcloud-analysis:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       # Checkout the repository
@@ -19,12 +26,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # SonarCloud Analysis (separate job)
+      # Perform SonarCloud Analysis
       - name: SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_ORG: your-organization # Replace with your actual SonarCloud organization
-          SONAR_HOST_URL: https://sonarcloud.io
+          SONAR_ORG: ${{ secrets.SONAR_ORG }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           mvn clean verify sonar:sonar \
             -Dsonar.organization=${{ secrets.SONAR_ORG }} \
