@@ -1,5 +1,14 @@
 name: Build and Artifact
 
+on:
+  push:
+    branches:
+      - '**'  # Trigger for all branches
+  pull_request:
+    branches:
+      - master  # Trigger for pull requests targeting the master branch
+  workflow_dispatch:  # Allow for manual trigger via GitHub UI
+
 runs-on: self-hosted
 
 steps:
