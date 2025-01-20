@@ -22,10 +22,10 @@ jobs:
   springboot-run-stop:
     uses: ./.github/workflows/springboot-run-stop.yml  # Reference to the Spring Boot workflow
 
-  # # Call the SonarCloud analysis workflow
-  # sonarcloud-analysis:
-  #   uses: ./.github/workflows/sonarcloud-analysis.yml  # Reference to the SonarCloud analysis workflow
-  #   with:
-  #     sonar-token: ${{ secrets.SONAR_TOKEN }}
-  #     sonar-org: your-organization  # Replace with your actual SonarCloud organization
-  #     sonar-host-url: https://sonarcloud.io
+  # Call the SonarCloud analysis workflow
+  sonarcloud-analysis:
+    uses: ./.github/workflows/sonarcloud-analysis.yml  # Reference to the SonarCloud analysis workflow
+    with:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
+      sonar-org: your-organization  # Replace with your actual SonarCloud organization
+      sonar-host-url: https://sonarcloud.io
