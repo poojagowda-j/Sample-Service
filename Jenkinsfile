@@ -1,25 +1,42 @@
+@Library('java_demo_pipeline@main') _
 pipeline {
-  agent { label 'slave3' }
+    agent {
+        label 'slave3'
+    }
     stages {
-        stage('Checkout') {            
+        stage('Checkout') {
             steps {
-                sh "rm -rf Sample-Service"
-                sh "git clone https://github.com/poojagowda-j/Sample-Service.git "
-sh "cd Sample-Service"
+                 sh "rm -rf dhl"
+                 sh "git clone https://github.com/poojagowda-j/Sample-Service.git"
+                sh "cd dhl"
+                //checkoutcode('parcel')
             }
         }
-   stage('Set up Environment') {
-        steps {
-            sh 'export export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))'            
-       sh 'export MAVEN_HOME=/usr/share/maven'          
+        stage('Set up Environment') {
+            steps {
+                sh 'export export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))'
+                sh 'export MAVEN_HOME=/usr/share/maven'
+            }
         }
-    }
-           stage('build') {            
-            steps {              
-                sh "mvn clean package"
-                  }
+        stage('setupjava17') {
+            steps {
+                setupjava('openjdk-17-jdk')
+            }
         }
-          stage('Upload Artifact') {
+        stage('setupmaven') {
+            steps {
+                //   echo " installing maveen"
+                //sh "sudo apt install -y maven"
+                setupjava('maven')
+            }
+        }
+        stage('build') {
+            steps {
+                // sh "mvn clean package"
+                buildproject(sample-service)
+            }
+        }
+        stage('Upload Artifact') {
             steps {
                 echo 'Uploading artifact...'
                 archiveArtifacts artifacts: 'target/simple-parcel-service-app-1.0-SNAPSHOT.jar', allowEmptyArchive: true
@@ -29,7 +46,6 @@ sh "cd Sample-Service"
             steps {
                 echo 'Running Spring Boot application...'
                 sh 'mvn spring-boot:run '
-
             }
         }
     }
