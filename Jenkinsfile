@@ -6,9 +6,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                 sh "rm -rf dhl"
+                 sh "rm -rf Sample-Service"
                  sh "git clone https://github.com/poojagowda-j/Sample-Service.git"
-                sh "cd dhl"
+                sh "cd Sample-Service"
                 //checkoutcode('parcel')
             }
         }
